@@ -15,15 +15,15 @@ Usage
 * Select `Quandl Connector` from the list of connectors in Lumira Desktop
 * Enter the dataset name and these parameters
  + `Quandl Code`: Quandl Code of the dataset. Ex: WIKI/AAPL, OPEC/ORB, RATEINF/CPI_USA.
- + `All Data`: All to retrieve complete dataset. 
- + `Selected Date Range`: Retrieve only a subset of data between two dates selected below 
- + `Start Date`: Start Date of the data going to be imported.
- + `End Date` : End Date of the data going to be imported.
- + `Sorting Order`: Import data for dates in Ascending or Descending order.
- + `Limit Rows`: Enter a number to limit the number of rows being imported.
- + `End of period`: Use this option to collapse and retrieve value at the end of every period selected here. Set this option to None and use Lumira for aggregated measures like average and sum for these periods.
- + `Transform`: Add transformations to values. Please refer to [Quandl API docs](https://www.quandl.com/docs/api?csv#data) for more details.
- + `API Key` : Enter your Quandl API Key. Please register for an account at [Quandl.com](https://www.quandl.com/users/sign_up) and get your key [here](https://www.quandl.com/account/api).
+ + `All Data`: Retrieve the complete dataset. 
+ + `Selected Date Range`: Retrieve a subset of data between two dates selected below. 
+ + `Start Date`: Start Date of the dataset being imported.
+ + `End Date` : End Date of the dataset being imported.
+ + `Sorting Order`: Sort dataset in Ascending or Descending order.
+ + `Limit Rows`: Limit the number of rows being imported. Ex: 100.
+ + `End of period`: Use this option to collapse the dataset and retrieve one value at the end of every period selected here. Set this option to `None` to import daily data and instead use Lumira for aggregated measures like `Average` and `Sum` for these periods.
+ + `Transform`: Add transformations to values across all columns being imported. Please refer to the data section in [Quandl API docs](https://www.quandl.com/docs/api?csv#data) for more details.
+ + `API Key` : Enter your Quandl API Key to access premium dataset subscriptions. Also required to bypass rate-limits if they kick in and calls fail for free datasets. Please register for an account at [Quandl.com](https://www.quandl.com/users/sign_up) and get your key [here](https://www.quandl.com/account/api).
 * Select `Create` to import data into a new document
 * Use the `Data > Edit Data source` option to change parameters in an existing Lumira document.
 
