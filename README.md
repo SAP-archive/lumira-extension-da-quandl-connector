@@ -6,7 +6,7 @@ Install
 -----------------
 * Open Extension Manager, `File > Extensions`
 * Click `Manual Installation`
-* Select the zip file from `\install-extension` in this repo
+* Download the zip file from `\install-extension` in this repo or click this [link](https://github.com/SAP/lumira-extension-da-quandl-connector/blob/master/install-extension/com.sap.bi.da.extension.quandlextension_1.29.2.201601041424.zip?raw=true) to download.
 * Restart SAP Lumira Desktop
 
 Usage
@@ -21,7 +21,7 @@ Usage
  + `End Date` : End Date of the dataset being imported.
  + `Sorting Order`: Sort dataset in Ascending or Descending order.
  + `Limit Rows`: Limit the number of rows being imported. Ex: 100.
- + `End of period`: Use this option to collapse the dataset and retrieve one value at the end of every period selected here. Set this option to `None` to import daily data and instead use Lumira for aggregated measures like `Average` and `Sum` for these periods.
+ + `End of period`: Use this option to collapse the dataset and retrieve one value at the end of every period selected here. Set this option to `None` to import daily data and use Lumira for aggregated measures like `Average` and `Sum` for these periods.
  + `Transform`: Add transformations to values across all columns being imported. Please refer to the data section in [Quandl API docs](https://www.quandl.com/docs/api?csv#data) for more details.
  + `API Key` : Enter your Quandl API Key to access premium dataset subscriptions. Also required to bypass rate-limits if they kick in and calls fail for free datasets. Please register for an account at [Quandl.com](https://www.quandl.com/users/sign_up) and get your key [here](https://www.quandl.com/account/api).
 * Select `Create` to import data into a new document
