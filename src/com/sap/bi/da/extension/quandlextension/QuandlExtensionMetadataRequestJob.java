@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -27,7 +28,9 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
@@ -52,27 +55,25 @@ import com.univocity.parsers.csv.CsvWriterSettings;
 
 public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitionJob {
 	public static File dataFile;
-	
+
 	IDAEAcquisitionState acquisitionState;
 	IDAEEnvironment environment;
-    
 
-    QuandlExtensionMetadataRequestJob (IDAEEnvironment environment, IDAEAcquisitionState acquisitionState) {
-        this.acquisitionState = acquisitionState;
-        this.environment = environment;
-    }
-    
-    public String csvMetadata = "";
-    
-    private List<String> tableHeader = new ArrayList<>();
-    private HashMap<String, String> tableHeaderDataTypes = new HashMap<>();
-    
+	QuandlExtensionMetadataRequestJob(IDAEEnvironment environment, IDAEAcquisitionState acquisitionState) {
+		this.acquisitionState = acquisitionState;
+		this.environment = environment;
+	}
 
-    @Override
-    public String execute(IDAEProgress callback) throws DAException {
-    	 try {
+	public String csvMetadata = "";
+
+	private List<String> tableHeader = new ArrayList<>();
+	private HashMap<String, String> tableHeaderDataTypes = new HashMap<>();
+
+	@Override
+	public String execute(IDAEProgress callback) throws DAException {
+		try {
 			JSONObject infoJSON = new JSONObject(acquisitionState.getInfo());
-			
+
 			String quandldatasetcode = infoJSON.getString("quandldatasetcode");
 			String datarange = infoJSON.getString("datarange");
 			String startdate = infoJSON.getString("startdate");
@@ -82,153 +83,161 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 			String collapsetype = infoJSON.getString("collapsetype");
 			String transformtype = infoJSON.getString("transformtype");
 			String apikey = infoJSON.getString("apikey");
-			
+
 			String charset = "UTF-8";
 			String hostName = "https://www.quandl.com/api/v3/datasets/";
-			
-			String query = String.format("order=%s&collapse=%s&transform=%s&api_key=%s", 
-			     URLEncoder.encode(sorttype, charset), 
-			     URLEncoder.encode(collapsetype, charset), 
-			     URLEncoder.encode(transformtype, charset), 
-			     URLEncoder.encode(apikey, charset));
-			
+
+			String query = String.format("order=%s&collapse=%s&transform=%s&api_key=%s",
+					URLEncoder.encode(sorttype, charset), URLEncoder.encode(collapsetype, charset),
+					URLEncoder.encode(transformtype, charset), URLEncoder.encode(apikey, charset));
+
 			String myurl = hostName + quandldatasetcode + "/data.csv" + "?" + query;
-			
-			if(datarange.equals("selected")){
-				String querydate = String.format("start_date=%s&end_date=%s", 
-						URLEncoder.encode(startdate, charset), 
-					     URLEncoder.encode(enddate, charset));
+
+			if (datarange.equals("selected")) {
+				String querydate = String.format("start_date=%s&end_date=%s", URLEncoder.encode(startdate, charset),
+						URLEncoder.encode(enddate, charset));
 				myurl = myurl + "&" + querydate;
 			}
-			
-			if(StringUtils.isNumeric(limitnumber)){
-				String querylimit = String.format("limit=%s", 
-						URLEncoder.encode(limitnumber, charset));
+
+			if (StringUtils.isNumeric(limitnumber)) {
+				String querylimit = String.format("limit=%s", URLEncoder.encode(limitnumber, charset));
 				myurl = myurl + "&" + querylimit;
 			}
-			
-			HttpURLConnection con = (HttpURLConnection)new URL(myurl).openConnection();
-		    
-		    con.setRequestMethod("GET");
+
+			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			InputStream trustStore = getClass().getResourceAsStream("/truststore.ts");
+			keyStore.load(trustStore, "asdfasdf".toCharArray());
+			trustStore.close();
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(keyStore);
+			SSLContext ctx = SSLContext.getInstance("TLS");
+			ctx.init(null, tmf.getTrustManagers(), null);
+			SSLSocketFactory sslFactory = ctx.getSocketFactory();
+			HttpsURLConnection con = (HttpsURLConnection) new URL(myurl).openConnection();
+			con.setSSLSocketFactory(sslFactory);
+			con.setRequestMethod("GET");
 			con.setRequestProperty("Content-Type", "text/csv");
 			con.setRequestProperty("Accept", "*/*");
-		    
-		    InputStream in = con.getInputStream();
-		    String encoding = con.getContentEncoding();
-		    encoding = encoding == null ? charset : encoding;
-		    String responseBody = IOUtils.toString(in, encoding);
-    		in.close();
-    		
-            InputStream stream = new ByteArrayInputStream(responseBody.getBytes(StandardCharsets.UTF_8));
-            
-            CsvParserSettings settings = new CsvParserSettings();
-            RowListProcessor rowProcessor = new RowListProcessor();
-            settings.setRowProcessor(rowProcessor);
-            settings.setLineSeparatorDetectionEnabled(true);
 
-            settings.setHeaderExtractionEnabled(true);
-//          settings.selectFields("Header1", "Header2");
-            
-            CsvParser parser = new CsvParser(settings);
-            
-            parser.parse(newReader(stream));
-            tableHeader = new ArrayList<String>(Arrays.asList(rowProcessor.getHeaders()));
-            tableHeader.removeAll(Collections.singleton(null));
-            
-            List<String[]> rows = rowProcessor.getRows();
-            
-            File csvFile = new File("");
+			InputStream in = con.getInputStream();
+			String encoding = con.getContentEncoding();
+			encoding = encoding == null ? charset : encoding;
+			String responseBody = IOUtils.toString(in, encoding);
+			in.close();
+
+			InputStream stream = new ByteArrayInputStream(responseBody.getBytes(StandardCharsets.UTF_8));
+
+			CsvParserSettings settings = new CsvParserSettings();
+			RowListProcessor rowProcessor = new RowListProcessor();
+			settings.setRowProcessor(rowProcessor);
+			settings.setLineSeparatorDetectionEnabled(true);
+
+			settings.setHeaderExtractionEnabled(true);
+			// settings.selectFields("Header1", "Header2");
+
+			CsvParser parser = new CsvParser(settings);
+
+			parser.parse(newReader(stream));
+			tableHeader = new ArrayList<String>(Arrays.asList(rowProcessor.getHeaders()));
+			tableHeader.removeAll(Collections.singleton(null));
+
+			List<String[]> rows = rowProcessor.getRows();
+
 			dataFile = File.createTempFile(QuandlExtension.EXTENSION_ID, ".csv", environment.getTemporaryDirectory());
-			
-            FileOutputStream csvResult = new FileOutputStream(dataFile);
-            Writer outputWriter = new OutputStreamWriter(csvResult);
-    		
-    		CsvWriterSettings writerSettings = new CsvWriterSettings();
-    		CsvWriter writer = new CsvWriter(outputWriter, writerSettings);
 
-    		for (int i = 0; i < rows.size(); i++) {
-    	        for(int j = 0; j < rows.get(i).length; j++){
-    	        	// TODO rewrite, check csvparser for an option
-    	        	if (i == 1) {
+			FileOutputStream csvResult = new FileOutputStream(dataFile);
+			Writer outputWriter = new OutputStreamWriter(csvResult);
+
+			CsvWriterSettings writerSettings = new CsvWriterSettings();
+			CsvWriter writer = new CsvWriter(outputWriter, writerSettings);
+
+			for (int i = 0; i < rows.size(); i++) {
+				for (int j = 0; j < rows.get(i).length; j++) {
+					// TODO rewrite, check csvparser for an option
+					if (i == 1) {
 						// sample column value rows.get(1)[j];
-    	        		if(j == 0){
-    	        			tableHeaderDataTypes.put(tableHeader.get(j), "Date");
-    	        		} else {
-    	        			// column name tableHeader[j]
-        	        		// read value and save it in HashMap as Number, String or Boolean
-        	        		tableHeaderDataTypes.put(tableHeader.get(j), NumberUtils.isNumber(rows.get(1)[j]) ? "Number" : "String");
-    					}
-    	        	}
-    	        	
-    				writer.writeValue(rows.get(i)[j]);
-    			}
-    	        writer.writeValuesToRow();
-    		}
-    		writer.close();
-		    
-    		generateMetadataString();
-			
-    		return csvMetadata;
-         } catch (Exception e) {
-             throw new DAException("HTTP CSV Extension acquisition failed" + e.toString(), e);
-         }
-    }
-    
-    private void generateMetadataString(){
-    	csvMetadata = "";
+						if (j == 0) {
+							tableHeaderDataTypes.put(tableHeader.get(j), "Date");
+						} else {
+							// column name tableHeader[j]
+							// read value and save it in HashMap as Number,
+							// String or Boolean
+							tableHeaderDataTypes.put(tableHeader.get(j),
+									NumberUtils.isNumber(rows.get(1)[j]) ? "Number" : "String");
+						}
+					}
 
-    	ObjectMapper mapper = new ObjectMapper();
+					writer.writeValue(rows.get(i)[j]);
+				}
+				writer.writeValuesToRow();
+			}
+			writer.close();
 
-        // Version.
-        JsonNode rootNode = mapper.createObjectNode();
-        ((ObjectNode) rootNode).put("version", "1.0");
-        JsonNode columns = mapper.createArrayNode();
+			generateMetadataString();
 
-        // Columns.
-        ((ObjectNode) rootNode).put("columns", columns);
-        Iterator<String> columnIter = tableHeader.iterator();
-        Pattern patternId = Pattern.compile("[^a-zA-Z0-9_]+", Pattern.CASE_INSENSITIVE);
-        while (columnIter.hasNext()) {
-            // Define the column metadata.
-            String colName = columnIter.next();
-            String myColName = colName.replaceAll("\"", ""); // Remove double quotes.
-            
-            String colDataType = tableHeaderDataTypes.get(colName);
-            
-            if (colDataType != null && colDataType.length() > 0) {
-                Boolean isMeasure = colDataType == "Number";
-                String analyticalType = (isMeasure ? "measure" : "dimension");
-                String id = myColName.replaceAll(patternId.pattern(), "_");
-                
-                JsonNode colNode = mapper.createObjectNode();
-                ((ObjectNode) colNode).put("name", myColName);
-                ((ObjectNode) colNode).put("id", id);
-                ((ObjectNode) colNode).put("type", colDataType);
-                ((ObjectNode) colNode).put("analyticalType", analyticalType);
-                if (isMeasure) {
-                    ((ObjectNode) colNode).put("aggregationFunction", "NONE");
-                }
+			return csvMetadata;
+		} catch (Exception e) {
+			throw new DAException("HTTP CSV Extension acquisition failed" + e.toString(), e);
+		}
+	}
 
-                // Add the column metadata.
-                ((ArrayNode) columns).add(colNode);
-            }
-        }
+	@SuppressWarnings("deprecation")
+	private void generateMetadataString() {
+		csvMetadata = "";
 
-        // save JSON metadata.
-        csvMetadata = rootNode.toString();
-    }
+		ObjectMapper mapper = new ObjectMapper();
 
-    @Override
-    public void cancel() {
-    	// Cancel is currently not supported
-    }
+		// Version.
+		JsonNode rootNode = mapper.createObjectNode();
+		((ObjectNode) rootNode).put("version", "1.0");
+		JsonNode columns = mapper.createArrayNode();
 
-    @Override
-    public void cleanup() {
-    	// Called once acquisition is complete
-    }
-    
-    public static Reader newReader(InputStream input) {
+		// Columns.
+		((ObjectNode) rootNode).put("columns", columns);
+		Iterator<String> columnIter = tableHeader.iterator();
+		Pattern patternId = Pattern.compile("[^a-zA-Z0-9_]+", Pattern.CASE_INSENSITIVE);
+		while (columnIter.hasNext()) {
+			// Define the column metadata.
+			String colName = columnIter.next();
+			String myColName = colName.replaceAll("\"", ""); // Remove double
+																// quotes.
+
+			String colDataType = tableHeaderDataTypes.get(colName);
+
+			if (colDataType != null && colDataType.length() > 0) {
+				Boolean isMeasure = colDataType == "Number";
+				String analyticalType = (isMeasure ? "measure" : "dimension");
+				String id = myColName.replaceAll(patternId.pattern(), "_");
+
+				JsonNode colNode = mapper.createObjectNode();
+				((ObjectNode) colNode).put("name", myColName);
+				((ObjectNode) colNode).put("id", id);
+				((ObjectNode) colNode).put("type", colDataType);
+				((ObjectNode) colNode).put("analyticalType", analyticalType);
+				if (isMeasure) {
+					((ObjectNode) colNode).put("aggregationFunction", "NONE");
+				}
+
+				// Add the column metadata.
+				((ArrayNode) columns).add(colNode);
+			}
+		}
+
+		// save JSON metadata.
+		csvMetadata = rootNode.toString();
+	}
+
+	@Override
+	public void cancel() {
+		// Cancel is currently not supported
+	}
+
+	@Override
+	public void cleanup() {
+		// Called once acquisition is complete
+	}
+
+	public static Reader newReader(InputStream input) {
 		return newReader(input, (Charset) null);
 	}
 
@@ -243,8 +252,8 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 			return new InputStreamReader(input);
 		}
 	}
-    
-    public static Reader newReader(File file) {
+
+	public static Reader newReader(File file) {
 		return newReader(file, (Charset) null);
 	}
 
@@ -262,6 +271,5 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 
 		return newReader(input, encoding);
 	}
-	
-}
 
+}
