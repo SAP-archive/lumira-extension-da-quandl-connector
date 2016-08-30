@@ -85,6 +85,7 @@
 			<zipfileset dir="${build.result.folder}" />
 			<zipfileset dir="." includes="plugin.xml" />
 			<zipfileset dir="${targetplatform.dir}" excludes="com.sap.bi.da.extension.sdk_1.29.2.jar" prefix="lib"/>
+			<zipfileset dir="./keystores" includes="*" />
 		</jar>
 
 		<!-- Copy any required jars to the /lib folder and entries must be added to the MANIFEST.MF file under META-INF as lib/<jar-file> -->
