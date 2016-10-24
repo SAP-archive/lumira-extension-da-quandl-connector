@@ -16,46 +16,36 @@ Copyright 2015, SAP SE
 
 package com.sap.bi.da.extension.quandlextension;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
+
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.json.JSONObject;
-
 import com.sap.bi.da.extension.sdk.DAEWorkflow;
-import com.sap.bi.da.extension.sdk.DAException;
 import com.sap.bi.da.extension.sdk.IDAEAcquisitionJobContext;
 import com.sap.bi.da.extension.sdk.IDAEAcquisitionState;
 import com.sap.bi.da.extension.sdk.IDAEClientRequestJob;
 import com.sap.bi.da.extension.sdk.IDAEDataAcquisitionJob;
 import com.sap.bi.da.extension.sdk.IDAEEnvironment;
 import com.sap.bi.da.extension.sdk.IDAEMetadataAcquisitionJob;
-import com.sap.bi.da.extension.sdk.IDAEProgress;
 import com.sap.bi.da.extension.sdk.IDAExtension;
 
 public class QuandlExtension implements IDAExtension {
-	
-	static public final String EXTENSION_ID = "com.sap.bi.da.extension.Quandlextension";
-	private IDAEEnvironment environment;
+
+    static public final String EXTENSION_ID = "com.sap.bi.da.extension.Quandlextension";
+    private IDAEEnvironment environment;
 
     public QuandlExtension() {
     }
 
     @Override
     public void initialize(IDAEEnvironment environment) {
-    	this.environment = environment;
-    	// This function will be called when the extension is initially loaded
-    	// This gives the extension to perform initialization steps, according to the provided environment
+        this.environment = environment;
+        // This function will be called when the extension is initially loaded
+        // This gives the extension to perform initialization steps, according to the provided environment
     }
 
     @Override
-    public IDAEAcquisitionJobContext getDataAcquisitionJobContext (IDAEAcquisitionState acquisitionState) {
+    public IDAEAcquisitionJobContext getDataAcquisitionJobContext(IDAEAcquisitionState acquisitionState) {
         return new QuandlExtensionAcquisitionJobContext(environment, acquisitionState);
     }
 
@@ -83,46 +73,21 @@ public class QuandlExtension implements IDAExtension {
         public IDAEDataAcquisitionJob getDataAcquisitionJob() {
             return new QuandlExtensionDataRequestJob(environment, acquisitionState);
         }
-        
-        @Override
-        public void cleanup() {
-        	// Called once acquisition is complete
-        	// Provides the job the opportunity to perform cleanup, if needed
-        	// Will be called after both job.cleanup()'s are called
-        }
-    }
-
-	private class QuandlExtensionClientRequestJob implements IDAEClientRequestJob {
-
-        String request;
-
-        QuandlExtensionClientRequestJob(String request) {
-            this.request = request;
-        }
-
-        @Override
-        public String execute(IDAEProgress callback) throws DAException {
-            return null;
-        }
-
-        @Override
-        public void cancel() {
-        	// Cancel is currently not supported
-        }
 
         @Override
         public void cleanup() {
-        	// This function is NOT called
+            // Called once acquisition is complete
+            // Provides the job the opportunity to perform cleanup, if needed
+            // Will be called after both job.cleanup()'s are called
         }
-
     }
 
     @Override
     public Set<DAEWorkflow> getEnabledWorkflows(IDAEAcquisitionState acquisitionState) {
-    	// If the extension is incompatible with the current environment, it may disable itself using this function
-    	// return EnumSet.allOf(DAEWorkflow.class) to enable the extension
-    	// return EnumSet.noneOf(DAEWorkflow.class) to disable the extension
-    	// Partial enabling is not currently supported
+        // If the extension is incompatible with the current environment, it may disable itself using this function
+        // return EnumSet.allOf(DAEWorkflow.class) to enable the extension
+        // return EnumSet.noneOf(DAEWorkflow.class) to disable the extension
+        // Partial enabling is not currently supported
         return EnumSet.allOf(DAEWorkflow.class);
     }
 }

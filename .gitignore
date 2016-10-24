@@ -1,8 +1,8 @@
 /bin/
 /target/
-
+/.idea/
 *.class
-
+*.iml
 # Package Files #
 *.war
 *.ear
