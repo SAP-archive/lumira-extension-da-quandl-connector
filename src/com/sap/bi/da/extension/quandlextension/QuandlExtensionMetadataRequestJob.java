@@ -179,7 +179,7 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 	}
 
 	@SuppressWarnings("deprecation")
-	private void generateMetadataString() throws Exception {
+	private void generateMetadataString() {
 		csvMetadata = "";
 
 		ObjectMapper mapper = new ObjectMapper();
