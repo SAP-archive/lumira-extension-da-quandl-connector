@@ -14,13 +14,26 @@ Copyright 2015, SAP SE
 	limitations under the License.
 */
 jQuery.sap.require("com.sap.bi.da.extension.quandlextension.ExtensionUtils");
-
+jQuery.sap.require("com.sap.bi.da.extension.quandlextension.DatabaseBrowserRequestMaker");
 define(["service!sap.bi.da.extension.sdk.clientRequestService", "QuandlExtensionDialogController"], function (ClientRequestService, QuandlExtensionDialogController) {
     "use strict";
     
     var ExtensionUtils = new com.sap.bi.da.extension.quandlextension.ExtensionUtils();
-    
+
     function QuandlExtension() {
+
+        var css = '.quandlConntectorDatasetListItem { padding: 4px !important; }',
+            head = document.head || document.getElementsByTagName('head')[0],
+            style = document.createElement('style');
+
+        style.type = 'text/css';
+        if (style.styleSheet){
+            style.styleSheet.cssText = css;
+        } else {
+            style.appendChild(document.createTextNode(css));
+        }
+
+        head.appendChild(style);
 
         var EXTENSION_ID = "com.sap.bi.da.extension.quandlextension";
 
@@ -32,9 +45,11 @@ define(["service!sap.bi.da.extension.sdk.clientRequestService", "QuandlExtension
         	ClientRequestService.callClientRequestService(EXTENSION_ID, request, fSuccess, fFailure);
         };
 
+        var databaseBrowserRequestMaker = new com.sap.bi.da.extension.quandlextension.DatabaseBrowserRequestMaker(fServiceCall);
+
         var createQuandlExtensionDialog = function(acquisitionState, workflow) {
             var oDeferred = new jQuery.Deferred();
-            var controller = new QuandlExtensionDialogController(acquisitionState, oDeferred, fServiceCall, workflow, ExtensionUtils);
+            var controller = new QuandlExtensionDialogController(acquisitionState, oDeferred, fServiceCall, workflow, ExtensionUtils, databaseBrowserRequestMaker);
             controller.showDialog();
             return oDeferred.promise();
         };

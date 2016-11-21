@@ -6,7 +6,7 @@ Install
 -----------------
 * Open Extension Manager, `File > Extensions`
 * Click `Manual Installation`
-* Download the zip file from `\install-extension` in this repo or click this [link](https://github.com/SAP/lumira-extension-da-quandl-connector/blob/master/install-extension/com.sap.bi.da.extension.quandlextension_1.29.2.201608311120.zip?raw=true) to download.
+* Download the zip file from `\install-extension` in this repo or click this [link](https://github.com/SAP/lumira-extension-da-quandl-connector/blob/master/install-extension/com.sap.bi.da.extension.quandlextension_1.30.0.201610241554.zip?raw=true) to download.
 * Restart SAP Lumira Desktop
 
 Usage

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Quandl Connector
 Bundle-ClassPath: lib/org.json_0.0.0.jar,lib/commons-io_2.4.jar,lib/commons-codec-1.10.jar,lib/commons-lang3-3.4.jar,lib/jackson-core-2.5.0.jar,lib/jackson-annotations-2.6.2.jar,lib/jackson-databind-2.6.2.jar,lib/univocity-parsers-1.5.6.jar,.
 Bundle-SymbolicName: com.sap.bi.da.extension.quandlextension;singleton:=true
-Bundle-Version: 1.29.2.qualifier
+Bundle-Version: 1.30.0.qualifier
 Bundle-Vendor: SAP
 Require-Bundle: com.sap.bi.da.extension.sdk;bundle-version="1.29.2"
 Bundle-ActivationPolicy: lazy

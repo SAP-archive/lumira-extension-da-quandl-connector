@@ -55,7 +55,7 @@ import com.univocity.parsers.csv.CsvWriterSettings;
 
 public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitionJob {
 	public static File dataFile;
-
+    private SSLSocketFactory sslSocketFactory;
 	IDAEAcquisitionState acquisitionState;
 	IDAEEnvironment environment;
 
@@ -84,7 +84,13 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 			String transformtype = infoJSON.getString("transformtype");
 			String apikey = infoJSON.getString("apikey");
 
-			String charset = "UTF-8";
+            // get metadata and check if data is a time series
+            String quandlMetadata = getQuandlMetadata(quandldatasetcode, apikey);
+            JSONObject quandlMetadataJSON = new JSONObject(quandlMetadata);
+            boolean isTimeseries = quandlMetadataJSON.getJSONObject("dataset").getString("type").equals("Time Series");
+
+            // get actual data
+            String charset = "UTF-8";
 			String hostName = "https://www.quandl.com/api/v3/datasets/";
 
 			String query = String.format("order=%s&collapse=%s&transform=%s&api_key=%s",
@@ -104,17 +110,8 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 				myurl = myurl + "&" + querylimit;
 			}
 
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			InputStream trustStore = getClass().getResourceAsStream("/truststore.ts");
-			keyStore.load(trustStore, "asdfasdf".toCharArray());
-			trustStore.close();
-			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-			tmf.init(keyStore);
-			SSLContext ctx = SSLContext.getInstance("TLS");
-			ctx.init(null, tmf.getTrustManagers(), null);
-			SSLSocketFactory sslFactory = ctx.getSocketFactory();
 			HttpsURLConnection con = (HttpsURLConnection) new URL(myurl).openConnection();
-			con.setSSLSocketFactory(sslFactory);
+			con.setSSLSocketFactory(getCustomSecureSocketFactory());
 			con.setRequestMethod("GET");
 			con.setRequestProperty("Content-Type", "text/csv");
 			con.setRequestProperty("Accept", "*/*");
@@ -154,16 +151,16 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 			for (int i = 0; i < rows.size(); i++) {
 				for (int j = 0; j < rows.get(i).length; j++) {
 					// TODO rewrite, check csvparser for an option
-					if (i == 1) {
+					if (i == 0) {
 						// sample column value rows.get(1)[j];
-						if (j == 0) {
+						if (j == 0 && isTimeseries) {
 							tableHeaderDataTypes.put(tableHeader.get(j), "Date");
 						} else {
 							// column name tableHeader[j]
 							// read value and save it in HashMap as Number,
 							// String or Boolean
 							tableHeaderDataTypes.put(tableHeader.get(j),
-									NumberUtils.isNumber(rows.get(1)[j]) ? "Number" : "String");
+									NumberUtils.isNumber(rows.get(0)[j]) ? "Number" : "String");
 						}
 					}
 
@@ -222,7 +219,6 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 				((ArrayNode) columns).add(colNode);
 			}
 		}
-
 		// save JSON metadata.
 		csvMetadata = rootNode.toString();
 	}
@@ -271,5 +267,52 @@ public class QuandlExtensionMetadataRequestJob implements IDAEMetadataAcquisitio
 
 		return newReader(input, encoding);
 	}
+
+	private String getQuandlMetadata(String quandlCode, String apiKey) throws Exception{
+        String charset = "UTF-8";
+        String hostName = "https://www.quandl.com/api/v3/datasets/";
+
+        String query = "api_key=" + apiKey;
+
+        String myurl = hostName + quandlCode + "/metadata.json" + "?" + query;
+
+        HttpsURLConnection con = (HttpsURLConnection) new URL(myurl).openConnection();
+        con.setSSLSocketFactory(getCustomSecureSocketFactory());
+        con.setRequestMethod("GET");
+        con.setRequestProperty("Content-Type", "text/csv");
+        con.setRequestProperty("Accept", "*/*");
+
+        InputStream in = con.getInputStream();
+        String encoding = con.getContentEncoding();
+        encoding = encoding == null ? charset : encoding;
+        String responseBody = IOUtils.toString(in, encoding);
+        in.close();
+        return responseBody;
+    }
+
+    private SSLSocketFactory getCustomSecureSocketFactory() throws Exception {
+        // load truststore certificate and set custom socket factory for URL connection since
+        // Lumira's JRE has an outdated truststore which makes a secure ssl connection to quandl impossible
+        if (sslSocketFactory != null) {
+            return sslSocketFactory;
+        } else {
+            try {
+                KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                InputStream trustStore = getClass().getResourceAsStream("/truststore.ts");
+                keyStore.load(trustStore, "asdfasdf".toCharArray());
+                trustStore.close();
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                tmf.init(keyStore);
+                SSLContext ctx = SSLContext.getInstance("TLS");
+                ctx.init(null, tmf.getTrustManagers(), null);
+                sslSocketFactory = ctx.getSocketFactory();
+                return sslSocketFactory;
+            } catch (Exception e) {
+                throw new Exception("Unable to create SSL socket factory");
+            }
+        }
+
+    }
+
 
 }
