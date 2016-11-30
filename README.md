@@ -2,11 +2,15 @@ Quandl Connector
 ==========================================================
 [Quandl.com](https://www.quandl.com) is a data platform that gives you access to financial and economic datasets online. SAP Lumira users can now use this connector to import data from Quandl directly into Lumira documents without having to download and import csv files manually. This Lumira extension is built with the V2 SAP Lumira Data Access Extension SDK.
 
+Download
+-----------------
+[Click to download](https://github.com/SAP/lumira-extension-da-quandl-connector/blob/master/install-extension/com.sap.bi.da.extension.quandlextension_1.30.0.201610241554.zip?raw=true)
+
 Install
 -----------------
 * Open Extension Manager, `File > Extensions`
 * Click `Manual Installation`
-* Download the zip file from `\install-extension` in this repo or click this [link](https://github.com/SAP/lumira-extension-da-quandl-connector/blob/master/install-extension/com.sap.bi.da.extension.quandlextension_1.30.0.201610241554.zip?raw=true) to download.
+* Select the downloaded zip file
 * Restart SAP Lumira Desktop
 
 Usage
@@ -39,7 +43,7 @@ Resources
 License
 ---------
 
-    Copyright 2015, SAP SE
+    Copyright 2016, SAP SE
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
