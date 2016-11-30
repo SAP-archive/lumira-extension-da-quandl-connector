@@ -39,6 +39,8 @@ Search with Database Browser
 * Select a database
 * Search for a relevant dataset and select it
 * Ensure the `Quandl Code` field now has a code, modify the other parameters as necessary
+* Use the "Proceed without selecting database..." option if you want to search all the datasets available in Quandl without selecting a specific database
+* If you are receiving and error in the UI saying "Unable to retrieve dataset list. Check your Quandl API usage limit or your internet connection", it is time for you to register for a free Quandl account and add your API key to the `API Key` field before opening the `Database Browser`
 
 Build
 -----------------
