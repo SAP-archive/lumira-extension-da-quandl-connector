@@ -29,8 +29,16 @@ Usage
  + `Transform`: Add transformations to values across all columns being imported. Please refer to the data section in [Quandl API docs](https://www.quandl.com/docs/api?csv#data) for more details.
  + `API Key` : Enter your Quandl API Key to access premium dataset subscriptions. Also required to bypass rate-limits if they kick in and calls fail for free datasets. Please register for an account at [Quandl.com](https://www.quandl.com/users/sign_up) and get your key [here](https://www.quandl.com/account/api).
 * Select `Create` to import data into a new document
-* * Use the `Data > Refresh document` option to fetch the latest data and update the existing Lumira document.
+* Use the `Data > Refresh document` option to fetch the latest data and update the existing Lumira document.
 * Use the `Data > Edit Data source` option to change parameters in an existing Lumira document.
+
+Search with Database Browser
+------------------------------
+* Select `Database Browser` beside the `Quandl Code` input field.
+* Enter a search term and press the return key to retrieve relevant databases available at Quandl. Ex: "Employment", "Stocks"
+* Select a database
+* Search for a relevant dataset and select it
+* Ensure the `Quandl Code` field now has a code, modify the other parameters as necessary
 
 Build
 -----------------
