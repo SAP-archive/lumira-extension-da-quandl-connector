@@ -20,5 +20,5 @@ com.sap.bi.da.extension.quandlextension.ExtensionUtils.prototype.calcLastNDaysFr
 	    day = '0' + day;
 	  }
 
-	  return [year, month, day].join('-');
+	  return new Date([year, month, day].join('-'));
 }
