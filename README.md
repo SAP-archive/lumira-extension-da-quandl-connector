@@ -4,7 +4,10 @@ Quandl Connector
 
 Download
 -----------------
-[Click to download](https://github.com/SAP/lumira-extension-da-quandl-connector/blob/master/install-extension/com.sap.bi.da.extension.quandlextension_1.30.0.201701091640.zip?raw=true)
+[Lumira 2.x Discovery Download](https://github.com/SAP/lumira-extension-da-quandl-connector/blob/master/install-extension-Lumira2.xDiscovery/com.sap.bi.da.extension.quandlextension_1.30.0.201707071423.zip?raw=true)
+
+
+[Lumira 1.x Download](https://github.com/SAP/lumira-extension-da-quandl-connector/blob/master/install-extension-Lumira1.x/com.sap.bi.da.extension.quandlextension_1.30.0.201701091640.zip?raw=true)
 
 Install
 -----------------
