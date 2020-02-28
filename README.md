@@ -1,3 +1,8 @@
+![](https://img.shields.io/badge/STATUS-NOT%20CURRENTLY%20MAINTAINED-red.svg?longCache=true&style=flat)
+
+# Important Notice
+We have decided to stop the maintenance of this public GitHub repository.
+
 Quandl Connector
 ==========================================================
 [Quandl.com](https://www.quandl.com) is a data platform that gives you access to financial and economic datasets online. SAP Lumira users can now use this connector to import data from Quandl directly into Lumira documents without having to download and import csv files manually. This Lumira extension is built with the V2 SAP Lumira Data Access Extension SDK.
